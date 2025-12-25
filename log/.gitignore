@@ -1,0 +1,11 @@
+/target/
+/zip/*.zip
+/zip/*.zipx
+**/*.zip
+*.html
+*.htm
+*.log
+**/*.log
+*.csv
+**/*.pdf
+**/*.bak
