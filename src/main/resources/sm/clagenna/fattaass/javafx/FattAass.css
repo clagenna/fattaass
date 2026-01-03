@@ -1,0 +1,75 @@
+.button {
+	-fx-text-fill: black;
+	/* background-color: #7AECC6; */
+	-fx-background-radius: 10 10 10 10;
+	-fx-padding: 5 10 5 10;
+	padding: 5 10 5 10;
+}
+
+.button:disabled {
+	-fx-text-fill: #333;
+	-fx-background-color: darkgray;
+	background-color: darkgray;
+}
+
+.mioSelected {
+	/* -webkit-text-fill-color: darkgreen; */
+	/* -fx-text-fill: darkgreen; */
+	/* -fx-font-size:  0.916667em; */
+	-fx-background-color: blue; /*  #FAECC6; */
+	background-color: blue; /*  #FAECC6; */
+	/* -webkit-background-color: blue; */
+}
+
+.table-row-cell:inError {
+	/* -webkit-text-fill-color: #ffd700 !important; */
+	/* -fx-text-fill: #ffd700; */
+	/* -fx-font-size:  0.916667em; */
+	background-color: #B93122; /* #016889; */
+	-fx-background-color: #B93122;
+	/* -webkit-background-color: #FFA5A5; */
+}
+
+.table-row-cell:noExPdf {
+	/* -webkit-text-fill-color: #ffd700 !important; */
+	/* -fx-text-fill: #ffd700; */
+	/* -fx-font-size:  0.916667em; */
+	background-color: #daa520; /* #016889; */
+	-fx-background-color: #daa520;
+	/* -webkit-background-color: #daa520; */
+}
+
+.table-row-cell:newPdf {
+	/* -webkit-text-fill-color: darkgreen; */
+	/* -fx-text-fill: darkgreen; */
+	/* -fx-font-size:  0.916667em; */
+	-fx-background-color: #ffdead; /*  #FAECC6; */
+	background-color: #ffdead;
+	/* -webkit-background-color: #ffdead; */
+}
+
+.table-row-cell:newPdfsel {
+	/* -webkit-text-fill-color:  #20b2aa; / * darkgreen; */
+	/* -fx-text-fill:  #20b2aa; / * darkgreen; */
+	background-color: #C45F0E;
+	-fx-background-color: #C45F0E;
+	/* -webkit-background-color: #C45F0E; */
+}
+
+/* Default selection color (typically takes precedence if defined later or specifically) */
+.table-row-cell:selected {
+	-fx-background-color: -fx-selection-bar;
+	/* Keeps the standard blue highlight */
+	background-color: -fx-selection-bar;
+}
+
+/* Optional: If the custom color still overrides selection, explicitly reset selection */
+.table-row-cell:selected:custom-color {
+	-fx-background-color: -fx-selection-bar;
+	background-color: -fx-selection-bar;
+}
+
+.table-row-cell:oldPdf {
+	-webkit-text-fill-color: black;
+	-fx-text-fill: black;
+}

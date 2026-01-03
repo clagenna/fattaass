@@ -1,0 +1,10 @@
+target/
+zip/
+**/*.zip
+*.html
+*.htm
+*.log
+**/*.log
+*.csv
+**/*.pdf
+**/*.bak
