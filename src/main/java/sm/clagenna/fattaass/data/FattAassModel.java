@@ -130,16 +130,16 @@ public class FattAassModel implements PropertyChangeListener {
       recIntesta = getRecIntesta(codIntest);
   }
 
-  public ISql getFatturaInserter(ETipoFatt ptp, EServerId ids, boolean bSingleThrd) {
+  public ISql getFatturaInserter(ETipoFatt ptp ) {
     ISql isql = null;
-    if ( !bSingleThrd) {
-      isql = FactorySql.getFatturaInserter(ptp, ids);
+    if ( !isSingleThread()) {
+      isql = FactorySql.getFatturaInserter(ptp, getServerId());
       return isql;
     }
-    String szSqlInserter = String.format("%s_%s", ids, ptp.getTitolo());
+    String szSqlInserter = String.format("%s_%s", getServerId(), ptp.getTitolo());
     if (mapSQL.containsKey(szSqlInserter))
       return mapSQL.get(szSqlInserter);
-    isql = FactorySql.getFatturaInserter(ptp, ids);
+    isql = FactorySql.getFatturaInserter(ptp, getServerId());
     mapSQL.put(szSqlInserter, isql);
     return isql;
   }

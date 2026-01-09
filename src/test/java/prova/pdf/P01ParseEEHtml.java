@@ -17,7 +17,6 @@ import sm.clagenna.fattaass.data.ParserEEFattura;
 import sm.clagenna.fattaass.sql.EExSqlServ;
 import sm.clagenna.fattaass.sql.ISql;
 import sm.clagenna.stdcla.pdf.FromPdf2Html;
-import sm.clagenna.stdcla.sql.EServerId;
 import sm.clagenna.stdcla.utils.AppProperties;
 import sm.clagenna.stdcla.utils.sys.ex.AppPropsException;
 
@@ -28,7 +27,6 @@ public class P01ParseEEHtml {
   private ParserEEFattura parser;
   private AppProperties   props;
   private FattAassModel   model;
-  private EServerId       serverId;
 
   private boolean bDebug    = true;
   private boolean bSaveHTML = true;
@@ -86,7 +84,7 @@ public class P01ParseEEHtml {
     pdf2html.saveHtml("_3");
 
     printParsedValues();
-    ISql sql = model.getFatturaInserter(parser.getTipoFattura(), serverId, model.isSingleThread());
+    ISql sql = model.getFatturaInserter(parser.getTipoFattura());
     sql.init(parser, model);
     ((EExSqlServ) sql).setShowStatement(true);
     //    sql.setParsePdf(parser);
@@ -115,7 +113,6 @@ public class P01ParseEEHtml {
     AppProperties.setSingleton(false);
     props = new AppProperties();
     props.leggiPropertyFile(new File(Consts.CSZ_MAIN_PROPS), false, false);
-    serverId = EServerId.parse(props.getProperty(AppProperties.CSZ_PROP_DB_Type));
   }
 
   private void init() throws AppPropsException {

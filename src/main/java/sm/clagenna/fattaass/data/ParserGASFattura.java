@@ -143,15 +143,7 @@ public class ParserGASFattura extends ParserFattura implements IParserFatture {
     for (; getCurrIndx() < maxIndx && !bStop; nextIndex()) {
       checkPoint();
 
-      if (parseWithTokens("Totale Consumi Smc")) {
-        bStop = true;
-        commitIndex();
-        // backTrack dopo l'ultima riga OK
-        startIndex(lastGoodIndx);
-        break;
-      }
-
-      if (parseWithTokens("Totale Consumi mc")) {
+      if (parseWithTokens("Totale Consumi Smc") || parseWithTokens("Totale Consumi mc")) {
         bStop = true;
         commitIndex();
         // backTrack dopo l'ultima riga OK
@@ -303,6 +295,8 @@ public class ParserGASFattura extends ParserFattura implements IParserFatture {
     if ( !isMyToken(ETipiDato.Data)) // data Inizio
       return false;
     recCons.setDtIniz(ParseData.toLocalDateTime(hv.getValData()));
+    boolean lStimato = betweenDateAcconto(recCons.getDtIniz());
+    recCons.setStimato(stimati | lStimato);
 
     if ( !isMyToken(ETipiDato.Data)) // data Fine
       return false;
@@ -331,6 +325,21 @@ public class ParserGASFattura extends ParserFattura implements IParserFatture {
     liConsumi.add(recCons);
     commitIndex();
     return true;
+  }
+
+  private boolean betweenDateAcconto(LocalDateTime dtCheck) {
+    boolean bRet = false;
+    if (null == dtCheck)
+      return bRet;
+    LocalDateTime dtAccontoIniz = (LocalDateTime) mapTgv.get(Consts.TGV_PeriodAccontoDtIniz);
+    LocalDateTime dtAccontoFine = (LocalDateTime) mapTgv.get(Consts.TGV_PeriodAccontoDtFine);
+    if ( (null == dtAccontoIniz) || (null == dtAccontoFine))
+      return bRet;
+    bRet |= dtCheck.equals(dtAccontoIniz);
+    bRet |= dtCheck.equals(dtAccontoFine);
+    if (bRet)
+      return bRet;
+    return dtCheck.isBefore(dtAccontoFine) && dtCheck.isAfter(dtAccontoIniz);
   }
 
   private boolean parseMisureStraordinarie() {

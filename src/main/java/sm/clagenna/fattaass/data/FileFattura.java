@@ -21,7 +21,6 @@ import sm.clagenna.fattaass.enums.ETipoFatt;
 import sm.clagenna.fattaass.sql.ISql;
 import sm.clagenna.stdcla.pdf.FromPdf2Html;
 import sm.clagenna.stdcla.sql.DtsRow;
-import sm.clagenna.stdcla.sql.EServerId;
 import sm.clagenna.stdcla.utils.ParseData;
 import sm.clagenna.stdcla.utils.Utils;
 import sm.clagenna.stdcla.utils.sys.TimerMeter;
@@ -54,7 +53,7 @@ public class FileFattura implements Callable<FileFattura> {
   private LocalDateTime dtEmiss;
   @Getter @Setter
   private LocalDateTime dtIniz;
-  @Getter // @Setter
+  @Getter @Setter
   private LocalDateTime dtFine;
   @Getter @Setter
   private Double        totFattura;
@@ -109,20 +108,6 @@ public class FileFattura implements Callable<FileFattura> {
       s_log.error("Popola FileFattura da DB, err={}", e.getMessage(), e);
     }
     return this;
-  }
-
-  public void setDtFine(LocalDateTime dd) {
-    dtFine = dd;
-    //    String sz = ParseData.formatDate(dd);
-    //    if (null != sz && sz.length() > 10)
-    //      sz = sz.substring(0, 10);
-    //    if (null != parser) {
-    //      sz = ParseData.formatDate((LocalDateTime) parser.getMapTgv().get(Consts.TGV_PeriodFattDtFine));
-    //      if (null != sz && sz.endsWith("-01"))
-    //        System.out.println("FileFattura.indovinaFatturaDaPDF()");
-    //    }
-    //    if (null != sz && sz.endsWith("-01"))
-    //      System.out.println("FileFattura.indovinaFatturaDaPDF()");
   }
 
   public void indovinaFatturaDaPDF() {
@@ -180,8 +165,8 @@ public class FileFattura implements Callable<FileFattura> {
   }
 
   private void insertIntoDB(ParserFattura parser) {
-    EServerId serverId = model.getDbconn().getServerId();
-    ISql sql = model.getFatturaInserter(parser.getTipoFattura(), serverId, model.isSingleThread());
+    // EServerId serverId = model.getDbconn().getServerId();
+    ISql sql = model.getFatturaInserter(parser.getTipoFattura());
     if ( !model.isSingleThread())
       s_log.debug("{} Creato nuova DBConn", getThreadName());
     sql.init(parser, model);

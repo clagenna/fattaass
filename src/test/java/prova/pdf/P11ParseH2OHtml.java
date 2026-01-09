@@ -17,7 +17,6 @@ import sm.clagenna.fattaass.data.ParserH2OFattura;
 import sm.clagenna.fattaass.sql.H2OxSqlServ;
 import sm.clagenna.fattaass.sql.ISql;
 import sm.clagenna.stdcla.pdf.FromPdf2Html;
-import sm.clagenna.stdcla.sql.EServerId;
 import sm.clagenna.stdcla.utils.AppProperties;
 import sm.clagenna.stdcla.utils.sys.ex.AppPropsException;
 
@@ -28,7 +27,6 @@ public class P11ParseH2OHtml {
   private ParserH2OFattura parser;
   private AppProperties    props;
   private FattAassModel    model;
-  private EServerId        serverId;
 
   private boolean bDebug = false;
 
@@ -82,7 +80,7 @@ public class P11ParseH2OHtml {
     pdf2html.saveHtml("_3");
 
     printParsedValues();
-    ISql sql = model.getFatturaInserter(parser.getTipoFattura(), serverId, model.isSingleThread());
+    ISql sql = model.getFatturaInserter(parser.getTipoFattura());
     sql.init(parser, model);
     ((H2OxSqlServ) sql).setShowStatement(true);
     //    sql.setParsePdf(parser);
@@ -111,7 +109,6 @@ public class P11ParseH2OHtml {
     AppProperties.setSingleton(false);
     props = new AppProperties();
     props.leggiPropertyFile(new File(Consts.CSZ_MAIN_PROPS), false, false);
-    serverId = EServerId.parse(props.getProperty(AppProperties.CSZ_PROP_DB_Type));
   }
 
   private void init() throws AppPropsException {

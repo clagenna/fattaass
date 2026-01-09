@@ -103,14 +103,14 @@ public final class Consts {
   public static final String TGV_LettQta             = "LettQta";
   public static final String TGV_lettQtaMc           = "lettQtaMc";
   public static final String TGV_LettUMis            = "LettUMis";
-  public static final String TGV_PeriodAccontoDtFine = "PeriodAccontoDtFine";
-  public static final String TGV_PeriodAccontoDtIniz = "PeriodAccontoDtIniz";
+  public static final String TGV_PeriodFattDtFine    = "PeriodFattDtFine";
+  public static final String TGV_PeriodFattDtIniz    = "PeriodFattDtIniz";
   public static final String TGV_PeriodCongDtFine    = "PeriodCongDtFine";
   public static final String TGV_PeriodCongDtIniz    = "PeriodCongDtIniz";
   public static final String TGV_PeriodEffDtFine     = "PeriodEffDtFine";
   public static final String TGV_PeriodEffDtIniz     = "PeriodEffDtIniz";
-  public static final String TGV_PeriodFattDtFine    = "PeriodFattDtFine";
-  public static final String TGV_PeriodFattDtIniz    = "PeriodFattDtIniz";
+  public static final String TGV_PeriodAccontoDtFine = "PeriodAccontoDtFine";
+  public static final String TGV_PeriodAccontoDtIniz = "PeriodAccontoDtIniz";
   public static final String TGV_periodoA            = "periodoA";
   public static final String TGV_periodoDa           = "periodoDa";
   public static final String TGV_PotConsumo          = "PotConsumo";
@@ -336,10 +336,9 @@ public final class Consts {
   // =====================================================================
   public static final String QRY_find_Fattura = """
       SELECT id%sFattura FROM %sFattura
-                 WHERE idIntesta=?
-
-      AND ( id%sFattura = ?
-                    OR dataEmiss = ?)
+       WHERE idIntesta=?
+         AND ( id%sFattura = ?
+               OR dataEmiss = ?)
           """;
 
   public static final String QRY_del_Fattura = """

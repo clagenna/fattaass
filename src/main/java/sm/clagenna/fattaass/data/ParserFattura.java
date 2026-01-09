@@ -235,9 +235,11 @@ public abstract class ParserFattura implements IParserFatture {
    */
   private boolean parsePeriodoFatt() {
     int maxIndx = getCurrIndx() + 200;
+    boolean bStop = false;
     boolean bRet = false;
-    checkPoint();
-    for (; getCurrIndx() < maxIndx; nextIndex()) {
+    for (; getCurrIndx() < maxIndx && !bStop; nextIndex()) {
+      // ---------- FATTURAZIONE ----------------------------------------
+      checkPoint();
       bRet = parseWithTokens("Periodo", "di", "Fatturazione", "dal", ETipiDato.Data);
       if ( !bRet)
         bRet = parseWithTokens("Periodo", "di", "Fatturazione:", "dal", ETipiDato.Data);
@@ -250,9 +252,50 @@ public abstract class ParserFattura implements IParserFatture {
           int annoComp = periodDa.getYear();
           mapTgv.put(Consts.TGV_annoComp, annoComp);
           commitIndex();
-          return bRet;
+          continue;
         }
       }
+      // ---------- CONGUAGLIO ----------------------------------------
+      bRet = parseWithTokens("Periodo", "di", "conguaglio", "dal", ETipiDato.Data);
+      if ( !bRet)
+        bRet = parseWithTokens("Periodo", "di", "conguaglio:", "dal", ETipiDato.Data);
+      if (bRet) {
+        LocalDateTime periodDa = ParseData.toLocalDateTime(hv.getValData());
+        mapTgv.put(Consts.TGV_PeriodCongDtIniz, periodDa);
+        if (parseWithTokens("al", ETipiDato.Data)) {
+          LocalDateTime periodAl = ParseData.toLocalDateTime(hv.getValData());
+          mapTgv.put(Consts.TGV_PeriodCongDtFine, periodAl);
+          int annoComp = periodDa.getYear();
+          mapTgv.put(Consts.TGV_annoComp, annoComp);
+          commitIndex();
+          continue;
+        }
+      }
+      // ---------- ACCONTO:(stimato)  ----------------------------------------
+      bRet = parseWithTokens("Periodo", "di", "acconto", "dal", ETipiDato.Data);
+      if ( !bRet)
+        bRet = parseWithTokens("Periodo", "di", "acconto:", "dal", ETipiDato.Data);
+      if (bRet) {
+        LocalDateTime periodDa = ParseData.toLocalDateTime(hv.getValData());
+        mapTgv.put(Consts.TGV_PeriodAccontoDtIniz, periodDa);
+        if (parseWithTokens("al", ETipiDato.Data)) {
+          LocalDateTime periodAl = ParseData.toLocalDateTime(hv.getValData());
+          mapTgv.put(Consts.TGV_PeriodAccontoDtFine, periodAl);
+          int annoComp = periodDa.getYear();
+          mapTgv.put(Consts.TGV_annoComp, annoComp);
+          commitIndex();
+          continue;
+        }
+      }
+      // trovo il fianle di scansione per i periodi
+      if (parseWithTokens("Azienda Autonoma di Stato")) {
+        bStop = true;
+        commitIndex(); // evidenzio, se serve
+        // backTrack dopo l'ultima riga OK
+        startIndex(getCurrIndx() - 5);
+        break;
+      }
+
     }
     return bRet;
   }

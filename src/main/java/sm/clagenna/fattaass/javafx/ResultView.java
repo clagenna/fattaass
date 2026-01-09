@@ -1,5 +1,7 @@
 package sm.clagenna.fattaass.javafx;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -18,6 +20,8 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -34,6 +38,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
@@ -42,7 +47,9 @@ import lombok.Getter;
 import lombok.Setter;
 import sm.clagenna.fattaass.data.Consts;
 import sm.clagenna.fattaass.data.FattAassModel;
+import sm.clagenna.fattaass.data.FileFattura;
 import sm.clagenna.fattaass.data.RecIntesta;
+import sm.clagenna.fattaass.enums.ETipoFatt;
 import sm.clagenna.stdcla.javafx.IStartApp;
 import sm.clagenna.stdcla.javafx.JFXUtils;
 import sm.clagenna.stdcla.javafx.TableViewFiller;
@@ -52,10 +59,11 @@ import sm.clagenna.stdcla.utils.AppProperties;
 import sm.clagenna.stdcla.utils.Utils;
 import sm.clagenna.stdcla.utils.sys.ex.DatasetException;
 
-public class ResultView implements Initializable, IStartApp {
+public class ResultView implements Initializable, IStartApp, PropertyChangeListener {
   private static final Logger s_log        = LogManager.getLogger(ResultView.class);
   public static final String  CSZ_FXMLNAME = "ResultView.fxml";
   private static final String CSZ_QRY_TRUE = "1=1";
+  private static Pattern      pattpf       = Pattern.compile("id([a-zA-Z0-9]*)fattura");
 
   @FXML
   private ComboBox<RecIntesta> cbIntesta;
@@ -92,6 +100,7 @@ public class ResultView implements Initializable, IStartApp {
   private TableViewFiller m_tbvf;
   private String          m_CSVfile;
   private int             resViewSeq;
+  private boolean         m_propChangeEvt;
 
   public ResultView() {
     //
@@ -110,6 +119,7 @@ public class ResultView implements Initializable, IStartApp {
     model = m_appmain.getModel();
     m_mainProps = m_appmain.getProps();
     m_db = model.getDbconn();
+    model.addPropertyChangeListener(this);
 
     caricaComboTitolare();
     caricaComboAnno();
@@ -126,11 +136,12 @@ public class ResultView implements Initializable, IStartApp {
   }
 
   private void caricaComboTitolare() {
-
     List<RecIntesta> liInte = new ArrayList<RecIntesta>();
     liInte.add(0, (RecIntesta) null);
     liInte.addAll(model.getMapIntesta().values());
     cbIntesta.getItems().addAll(liInte);
+    m_fltrIntesta = model.getRecIntesta();
+    cbIntesta.getSelectionModel().select(m_fltrIntesta);
   }
 
   private void caricaComboAnno() {
@@ -203,7 +214,10 @@ public class ResultView implements Initializable, IStartApp {
 
   @FXML
   void cbIntestaSel(ActionEvent event) {
+    if ( m_propChangeEvt)
+      return;
     m_fltrIntesta = cbIntesta.getSelectionModel().getSelectedItem();
+    model.setIntesta(m_fltrIntesta, true);
     s_log.debug("ResultView.cbIntestaSel():" + m_fltrIntesta);
     abilitaBottoni();
   }
@@ -277,6 +291,7 @@ public class ResultView implements Initializable, IStartApp {
     }
     String szQryFltr = String.format("%s %s %s", szLeft, szFiltr.toString(), szRight);
     m_tbvf = new TableViewFiller(tblview, m_db);
+    TableViewFiller.setNullRetValue("");
     m_tbvf.setSzQry(szQryFltr);
     // m_tbvf.openQuery();
 
@@ -348,12 +363,41 @@ public class ResultView implements Initializable, IStartApp {
   }
 
   protected void tableRow_dblclick(TableRow<List<Object>> row) {
-    //    System.out.println("ResultView.tableRow_dblclick(row):" + (null != row ? row.getClass().getSimpleName() : "**null**"));
-    List<Object> r = tblview.getSelectionModel().getSelectedItem();
+    ObservableList<TableColumn<List<Object>, ?>> liCols = tblview.getColumns();
+    int idFatt = -1;
+    List<Object> row2 = tblview.getSelectionModel().getSelectedItem();
     String szPdf = null;
-    if (null != r) {
+    ETipoFatt tpFatt = null;
+    int k = 0;
+    int nCol = -1;
+    // ricerco la colonna idXXFattura
+    for (TableColumn<List<Object>, ?> col : liCols) {
+      String szTit = col.getText();
+      // voglio il match per idFattura, idEEFattura, idGASFattura, idH2OFattura
+      Matcher mtch = pattpf.matcher(szTit.toLowerCase());
+      tpFatt = null;
+      if (mtch.find()) {
+        if (mtch.groupCount() > 0) {
+          nCol = k;
+          String szTp = mtch.group(1);
+          tpFatt = ETipoFatt.parse(szTp);
+          break;
+        }
+      }
+      k++;
+    }
+    if (nCol >= 0 && null != tpFatt && null != model.getFileGest()) {
+      Object obj = row2.get(nCol);
+      if (null != obj && (obj instanceof Integer intv)) {
+        idFatt = intv;
+        FileFattura ff = model.getFileGest().findFattura(tpFatt, m_fltrIntesta.getIdIntestaInt(), idFatt);
+        szPdf = ff.getFullPath().toString();
+      }
+    }
+    //    System.out.println("ResultView.tableRow_dblclick(row):" + (null != row ? row.getClass().getSimpleName() : "**null**"));
+    if (null == szPdf && null != row2) {
       // System.out.println("r.=" + r.toString());
-      for (Object e : r) {
+      for (Object e : row2) {
         if (null != e) {
           String sz = e.toString();
           if (sz.toLowerCase().endsWith(".pdf")) {
@@ -362,7 +406,6 @@ public class ResultView implements Initializable, IStartApp {
           }
         }
       }
-      // System.out.println("PDF = " + szPdf);
     }
     if (null == szPdf) {
       m_appmain.messageDialog(AlertType.WARNING, "Non trovo nome di file PDF nella riga...");
@@ -455,4 +498,22 @@ public class ResultView implements Initializable, IStartApp {
 
   }
 
+  @Override
+  public void propertyChange(PropertyChangeEvent evt) {
+    var sz = evt.getPropertyName();
+    // var val = evt.getNewValue();
+    // @SuppressWarnings("unused") double currProgressNo = 0;
+    m_propChangeEvt = true;
+    try {
+      switch (sz) {
+        // ------------------------------------------------------------------------
+        case Consts.EVT_CHANGE_INTESTA:
+          RecIntesta lRecInt = model.getRecIntesta();
+          cbIntesta.getSelectionModel().select(lRecInt);
+          break;
+      }
+    } finally {
+      m_propChangeEvt = false;
+    }
+  }
 }

@@ -196,6 +196,7 @@ public class FattAassController implements Initializable, ILog4jReader, IStartAp
       double dbl = Double.valueOf(szPos);
       spltPane.setDividerPositions(dbl);
     }
+    btShowResults.setDisable(true);
     ckLanciaExcel.selectedProperty().addListener((ck, ol, nw) -> model.setLanciaExcel(ckLanciaExcel.isSelected()));
     aggiornaCbIntesta();
     initTblCols();
@@ -225,29 +226,43 @@ public class FattAassController implements Initializable, ILog4jReader, IStartAp
     // Colorazione delle righe della tabella
     // ---------------------------------------------------------------------
 
-    tblFatt.setRowFactory(tv -> new TableRow<FileFattura>() {
-      @Override
-      protected void updateItem(FileFattura item, boolean empty) {
-        super.updateItem(item, empty);
-        //        if (bAllPainted)
-        //          return;
-        // Reset state for empty/cleared rows
-        pseudoClassStateChanged(cssInError, false);
-        pseudoClassStateChanged(cssNoExPdf, false);
-        pseudoClassStateChanged(cssNewPdf, false);
-        if (item != null && !empty) {
-          if (item.isInError()) {
-            // System.out.printf("ERR: %s\n", item.toString());
-            pseudoClassStateChanged(cssInError, true);
-          } else if ( !item.isFileExist()) {
-            // System.out.printf("!Exist; %s\n", item.toString());
-            pseudoClassStateChanged(cssNoExPdf, true);
-          } else if ( !item.isInDb()) {
-            // System.out.printf("!DB; %s\n", item.toString());
-            pseudoClassStateChanged(cssNewPdf, true);
+    tblFatt.setRowFactory(tv -> {
+      TableRow<FileFattura> row = new TableRow<FileFattura>() {
+
+        @Override
+        protected void updateItem(FileFattura item, boolean empty) {
+          super.updateItem(item, empty);
+          //        if (bAllPainted)
+          //          return;
+          // Reset state for empty/cleared rows
+          pseudoClassStateChanged(cssInError, false);
+          pseudoClassStateChanged(cssNoExPdf, false);
+          pseudoClassStateChanged(cssNewPdf, false);
+          if (item != null && !empty) {
+            if (item.isInError()) {
+              // System.out.printf("ERR: %s\n", item.toString());
+              pseudoClassStateChanged(cssInError, true);
+            } else if ( !item.isFileExist()) {
+              // System.out.printf("!Exist; %s\n", item.toString());
+              pseudoClassStateChanged(cssNoExPdf, true);
+            } else if ( !item.isInDb()) {
+              // System.out.printf("!DB; %s\n", item.toString());
+              pseudoClassStateChanged(cssNewPdf, true);
+            }
           }
         }
-      }
+      };
+      // ------------------------------------------------
+      row.setOnMouseClicked(ev -> {
+        if (row.isEmpty())
+          return;
+        if (ev.getClickCount() == 2) {
+          // FileFattura rec =(FileFattura) row.getItem();
+          //doppioClickFileFattura(rec);
+          showPdfDoc();
+        }
+      });
+      return row;
     });
     // ---------------------------------------------------------------------
 
@@ -326,7 +341,14 @@ public class FattAassController implements Initializable, ILog4jReader, IStartAp
 
     colFullPath = new TableColumn<>("File");
     colFullPath.setCellValueFactory(param -> {
-      String sz = param.getValue().getFullPath().toString();
+      // String sz = param.getValue().getFullPath().toString();
+      String sz = "** no file **";
+      var pth1 = param.getValue();
+      Path pth2 = null;
+      if (null != pth1)
+        pth2 = pth1.getFullPath();
+      if (null != pth2)
+        sz = pth2.toString();
       // if ( !param.getValue().isFileExist())
       // sz += " (*not exist! **)";
       // if ( !param.getValue().isInDb())
@@ -390,6 +412,11 @@ public class FattAassController implements Initializable, ILog4jReader, IStartAp
     }
   }
 
+  //  private void doppioClickFileFattura( FileFattura rec) {
+  //    //Path pth = rec.getFullPath();
+  //    showPdfDoc();
+  //  }
+
   private void loadTblValues() {
     tblFatt.getItems().clear();
     ObservableList<FileFattura> filesObsFatt = model.getFattureObs();
@@ -421,7 +448,7 @@ public class FattAassController implements Initializable, ILog4jReader, IStartAp
     model.setSaveTXT(ckGenTXT.isSelected());
     model.setSaveCSV(ckGenCSV.isSelected());
     model.setOverwriteFatt(ckOverwrite.isSelected());
-    
+
     getScene().setCursor(Cursor.WAIT);
     List<FileFattura> li = new ArrayList<>();
     for (FileFattura ff : tblFatt.getSelectionModel().getSelectedItems()) {
@@ -678,6 +705,7 @@ public class FattAassController implements Initializable, ILog4jReader, IStartAp
         RecIntesta lRecInt = model.getRecIntesta();
         txDirFatt.setText(lRecInt.getDirFatture().toString());
         Platform.runLater(() -> mnuRescanDirsClick(null));
+        cbIntesta.getSelectionModel().select(lRecInt);
         break;
 
       // ------------------------------------------------------------------------
@@ -717,6 +745,7 @@ public class FattAassController implements Initializable, ILog4jReader, IStartAp
         Platform.runLater(() -> {
           lbProgressione.setText("Done 100%");
           progressBar.setProgress(1f);
+          btShowResults.setDisable(false);
           //          bAllPainted = true;
         });
         break;

@@ -7,7 +7,9 @@ import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -21,6 +23,7 @@ import javafx.concurrent.Task;
 import javafx.scene.control.Alert.AlertType;
 import lombok.Getter;
 import lombok.Setter;
+import sm.clagenna.fattaass.enums.ETipoFatt;
 import sm.clagenna.fattaass.javafx.MainFattAass;
 import sm.clagenna.fattaass.sys.ex.ReadFattException;
 import sm.clagenna.fattaass.sys.ex.ReadFattLog4jRowException;
@@ -46,6 +49,8 @@ public class FileGest {
   private List<FileFattura>           liDBFattura;
   @Getter
   private List<FileFattura>           liFatture;
+  @Getter
+  private Map<String, FileFattura>    mapFatture;
 
   public FileGest(FattAassModel p_model) {
     model = p_model;
@@ -396,6 +401,7 @@ public class FileGest {
         liFatture.add(ffDB);
       }
     }
+    refreshMapFatture();
   }
 
   public void mergeAllFutures() {
@@ -421,7 +427,34 @@ public class FileGest {
     } catch (InterruptedException | ExecutionException e) {
       e.printStackTrace();
     }
-    System.out.println("FileGest.mergeAllFutures()  --------    F I N E     ! ! !");
+    s_log.debug("FileGest.mergeAllFutures()  --------    F I N E     ! ! !");
+    refreshMapFatture();
+  }
+
+  private void refreshMapFatture() {
+    mapFatture = new HashMap<String, FileFattura>();
+    // key: "EE_1_1328" -> TipoFatt, idIntesta, idFattura
+    for (FileFattura ff : liFatture) {
+      if (null == ff.getTipoFatt() || ff.getIdFattura() == 0)
+        continue;
+      String key = String.format("%s_%d_%d", // 
+          ff.getTipoFatt().getTitolo(), //
+          model.getRecIntesta().getIdIntestaInt(), //
+          ff.getIdFattura());
+      mapFatture.put(key, ff);
+    }
+  }
+
+  public FileFattura findFattura(ETipoFatt tpf, int idInt, int idFatt) {
+    FileFattura ff = null;
+    if (null == mapFatture || mapFatture.size() == 0)
+      return ff;
+    String key = String.format("%s_%d_%d", // 
+        tpf.getTitolo(), //
+        idInt, //
+        idFatt);
+    ff = mapFatture.get(key);
+    return ff;
   }
 
 }

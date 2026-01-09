@@ -14,10 +14,10 @@ import org.junit.Test;
 import sm.clagenna.fattaass.data.Consts;
 import sm.clagenna.fattaass.data.FattAassModel;
 import sm.clagenna.fattaass.data.ParserGASFattura;
+import sm.clagenna.fattaass.data.RecIntesta;
 import sm.clagenna.fattaass.sql.GASxSqlServ;
 import sm.clagenna.fattaass.sql.ISql;
 import sm.clagenna.stdcla.pdf.FromPdf2Html;
-import sm.clagenna.stdcla.sql.EServerId;
 import sm.clagenna.stdcla.utils.AppProperties;
 import sm.clagenna.stdcla.utils.sys.ex.AppPropsException;
 
@@ -28,20 +28,28 @@ public class P11ParseGASHtml {
   private ParserGASFattura parser;
   private AppProperties    props;
   private FattAassModel    model;
-  private EServerId        serverId;
 
-  private boolean bDebug           = true;
-  private boolean bSaveHTML        = true;
-  private boolean bSaveCSV         = true;
-  private boolean bSaveTXT         = true;
+  private boolean bDebug    = true;
+  private boolean bSaveHTML = true;
+  private boolean bSaveCSV  = true;
+  private boolean bSaveTXT  = true;
 
   @Test
   public void doIt() throws AppPropsException, SQLException {
     redirectJUL2Log4j();
     openProperties();
     init();
-    pthPdf = Paths.get("data/GAS_Cla_2024-12-01_2025-01-31.pdf");
-    pthPdf = Paths.get("F:/varie/AASS/Alessandro/GAS_2019-08-01_2019-09-30.pdf");
+    RecIntesta recInt = null;
+    //    pthPdf = Paths.get("data/GAS_Cla_2024-12-01_2025-01-31.pdf");
+    //    recInt = model.getRecIntesta(1);
+
+    //    pthPdf = Paths.get("F:/varie/AASS/Alessandro/GAS_2019-08-01_2019-09-30.pdf");
+    //    recInt = model.getRecIntesta(3);
+
+    pthPdf = Paths.get("F:\\varie\\AASS\\claudio\\GAS_2021-04-01_2021-05-31.pdf");
+    recInt = model.getRecIntesta(1);
+
+    model.setRecIntesta(recInt);
     scanFile(pthPdf);
   }
 
@@ -50,7 +58,8 @@ public class P11ParseGASHtml {
     redirectJUL2Log4j();
     openProperties();
     init();
-    Path pthStrtDir = Paths.get("F:\\varie\\AASS\\Alessandro");
+    // Path pthStrtDir = Paths.get("F:\\varie\\AASS\\Alessandro");
+    Path pthStrtDir = Paths.get("F:\\Google Drive\\SMichele\\AASS");
     List<Path> li = Files.list(pthStrtDir) //
         .filter(s -> s.getFileName().toString().endsWith(".pdf")) //
         .collect(Collectors.toList());
@@ -82,7 +91,7 @@ public class P11ParseGASHtml {
     pdf2html.saveHtml("_3");
 
     printParsedValues();
-    ISql sql = model.getFatturaInserter(parser.getTipoFattura(), serverId, model.isSingleThread());
+    ISql sql = model.getFatturaInserter(parser.getTipoFattura());
     sql.init(parser, model);
     ((GASxSqlServ) sql).setShowStatement(true);
     //    sql.setParsePdf(parser);
@@ -111,7 +120,7 @@ public class P11ParseGASHtml {
     AppProperties.setSingleton(false);
     props = new AppProperties();
     props.leggiPropertyFile(new File(Consts.CSZ_MAIN_PROPS), false, false);
-    serverId = EServerId.parse(props.getProperty(AppProperties.CSZ_PROP_DB_Type));
+    // serverId = EServerId.parse(props.getProperty(AppProperties.CSZ_PROP_DB_Type));
   }
 
   private void init() throws AppPropsException {

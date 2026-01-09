@@ -303,7 +303,7 @@ GO
 CREATE VIEW dbo.GASConsumoMensile
 AS
 SELECT te.NomeIntesta 
-      ,cs.idGASFattura
+      ,cs.idGASFattura AS idFattura
       ,YEAR(cs.dtIniz) as annoComp
       ,dbo.toAnnoMese(cs.dtIniz) as meseComp
       ,cs.dtIniz as dtIniz
@@ -373,7 +373,7 @@ GO
 CREATE VIEW dbo.GASLettureMensili
 AS
 SELECT te.NomeIntesta
-      ,ft.idGASFattura
+      ,ft.idGASFattura AS idFattura
       ,ft.annoComp
       ,ft.periodAccontoDtIniz
       ,ft.periodAccontoDtFine
@@ -511,7 +511,7 @@ CREATE   VIEW dbo.EELettureMensili
 AS
 SELECT te.NomeIntesta
       ,le.idLettura
-      ,le.idEEFattura
+      ,le.idEEFattura AS idFattura
 	  ,YEAR(le.LettDtAttuale) as annoComp
 	  ,FORMAT(YEAR(le.LettDtAttuale), '0000') + '-' + FORMAT(MONTH(le.LettDtAttuale), '00') meseComp
 	  ,le.LettDtPrec 
@@ -764,7 +764,7 @@ GO
 CREATE VIEW dbo.H2OConsumoMensile
 AS
 SELECT te.NomeIntesta 
-      ,cs.idH2OFattura
+      ,cs.idH2OFattura as idFattura
       ,YEAR(cs.dtIniz) as annoComp
       ,cs.dtIniz
       ,cs.dtFine
@@ -914,48 +914,39 @@ CREATE NONCLUSTERED INDEX UX_H2OFattura_dtEmiss ON dbo.H2OFattura
 	DataEmiss ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON PRIMARY
 GO
-ALTER TABLE dbo.EEConsumo  WITH CHECK ADD  CONSTRAINT FK_EEConsumo_EEFattura FOREIGN KEY(idEEFattura)
-REFERENCES dbo.EEFattura (idEEFattura)
+ALTER TABLE dbo.EEConsumo  WITH CHECK ADD  CONSTRAINT FK_EEConsumo_EEFattura FOREIGN KEY(idEEFattura) 		REFERENCES dbo.EEFattura (idEEFattura)
 GO
 ALTER TABLE dbo.EEConsumo CHECK CONSTRAINT FK_EEConsumo_EEFattura
 GO
-ALTER TABLE dbo.EEFattura  WITH CHECK ADD  CONSTRAINT FK_EEFattura_Intesta FOREIGN KEY(idIntesta)
-REFERENCES dbo.Intesta (idIntesta)
+ALTER TABLE dbo.EEFattura  WITH CHECK ADD  CONSTRAINT FK_EEFattura_Intesta FOREIGN KEY(idIntesta)			REFERENCES dbo.Intesta (idIntesta)
 GO
 ALTER TABLE dbo.EEFattura CHECK CONSTRAINT FK_EEFattura_Intesta
 GO
-ALTER TABLE dbo.EELettura  WITH CHECK ADD  CONSTRAINT FK_EELettura_EEFattura FOREIGN KEY(idEEFattura)
-REFERENCES dbo.EEFattura (idEEFattura)
+ALTER TABLE dbo.EELettura  WITH CHECK ADD  CONSTRAINT FK_EELettura_EEFattura FOREIGN KEY(idEEFattura)		REFERENCES dbo.EEFattura (idEEFattura)
 GO
 ALTER TABLE dbo.EELettura CHECK CONSTRAINT FK_EELettura_EEFattura
 GO
-ALTER TABLE dbo.GASConsumo  WITH CHECK ADD  CONSTRAINT FK_GASConsumo_GASFattura FOREIGN KEY(idGASFattura)
-REFERENCES dbo.GASFattura (idGASFattura)
+ALTER TABLE dbo.GASConsumo  WITH CHECK ADD  CONSTRAINT FK_GASConsumo_GASFattura FOREIGN KEY(idGASFattura)	REFERENCES dbo.GASFattura (idGASFattura)
 GO
 ALTER TABLE dbo.GASConsumo CHECK CONSTRAINT FK_GASConsumo_GASFattura
 GO
-ALTER TABLE dbo.GASFattura  WITH CHECK ADD  CONSTRAINT FK_GASFattura_Intesta FOREIGN KEY(idIntesta)
-REFERENCES dbo.Intesta (idIntesta)
+ALTER TABLE dbo.GASFattura  WITH CHECK ADD  CONSTRAINT FK_GASFattura_Intesta FOREIGN KEY(idIntesta)			REFERENCES dbo.Intesta (idIntesta)
 GO
 ALTER TABLE dbo.GASFattura CHECK CONSTRAINT FK_GASFattura_Intesta
 GO
-ALTER TABLE dbo.GASLettura  WITH CHECK ADD  CONSTRAINT FK_GASLettura_GASFattura FOREIGN KEY(idGASFattura)
-REFERENCES dbo.GASFattura (idGASFattura)
+ALTER TABLE dbo.GASLettura  WITH CHECK ADD  CONSTRAINT FK_GASLettura_GASFattura FOREIGN KEY(idGASFattura)	REFERENCES dbo.GASFattura (idGASFattura)
 GO
 ALTER TABLE dbo.GASLettura CHECK CONSTRAINT FK_GASLettura_GASFattura
 GO
-ALTER TABLE dbo.H2OConsumo  WITH CHECK ADD  CONSTRAINT FK_H2OConsumo_H2OFattura FOREIGN KEY(idH2OFattura)
-REFERENCES dbo.H2OFattura (idH2OFattura)
+ALTER TABLE dbo.H2OConsumo  WITH CHECK ADD  CONSTRAINT FK_H2OConsumo_H2OFattura FOREIGN KEY(idH2OFattura)	REFERENCES dbo.H2OFattura (idH2OFattura)
 GO
 ALTER TABLE dbo.H2OConsumo CHECK CONSTRAINT FK_H2OConsumo_H2OFattura
 GO
-ALTER TABLE dbo.H2OFattura  WITH CHECK ADD  CONSTRAINT FK_H2OFattura_Intesta FOREIGN KEY(idIntesta)
-REFERENCES dbo.Intesta (idIntesta)
+ALTER TABLE dbo.H2OFattura  WITH CHECK ADD  CONSTRAINT FK_H2OFattura_Intesta FOREIGN KEY(idIntesta)			REFERENCES dbo.Intesta (idIntesta)
 GO
 ALTER TABLE dbo.H2OFattura CHECK CONSTRAINT FK_H2OFattura_Intesta
 GO
-ALTER TABLE dbo.H2OLettura  WITH CHECK ADD  CONSTRAINT FK_H2OLettura_H2OFattura FOREIGN KEY(idH2OFattura)
-REFERENCES dbo.H2OFattura (idH2OFattura)
+ALTER TABLE dbo.H2OLettura  WITH CHECK ADD  CONSTRAINT FK_H2OLettura_H2OFattura FOREIGN KEY(idH2OFattura)	REFERENCES dbo.H2OFattura (idH2OFattura)
 GO
 ALTER TABLE dbo.H2OLettura CHECK CONSTRAINT FK_H2OLettura_H2OFattura
 GO

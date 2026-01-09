@@ -87,7 +87,7 @@ public abstract class BaseSqlServ implements ISql, Closeable {
   public abstract Logger getLog();
 
   protected boolean existFattDaCancellare() {
-    if (listIdFattura == null || listIdFattura.size() == 0)
+    if (null == listIdFattura || listIdFattura.size() == 0)
       return false;
     return true;
   }

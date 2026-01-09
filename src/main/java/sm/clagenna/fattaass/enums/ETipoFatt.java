@@ -29,7 +29,7 @@ public enum ETipoFatt {
     if (p_sz == null || p_sz.length() < 2)
       return ret;
     for (ETipoFatt t : ETipoFatt.values()) {
-      if (t.titolo.equals(p_sz)) {
+      if (t.titolo.equalsIgnoreCase(p_sz)) {
         ret = t;
         break;
       }
