@@ -15,7 +15,6 @@ import sm.clagenna.fattaass.data.Consts;
 import sm.clagenna.fattaass.data.FattAassModel;
 import sm.clagenna.fattaass.data.ParserGASFattura;
 import sm.clagenna.fattaass.data.RecIntesta;
-import sm.clagenna.fattaass.sql.GASxSqlServ;
 import sm.clagenna.fattaass.sql.ISql;
 import sm.clagenna.stdcla.pdf.FromPdf2Html;
 import sm.clagenna.stdcla.utils.AppProperties;
@@ -77,6 +76,7 @@ public class P11ParseGASHtml {
     pdf2html = new FromPdf2Html();
 
     // pdf2html.setParserHtml(parser);
+    model.setDebug(bDebug);
     pdf2html.setDebug(bDebug);
     pdf2html.setSaveHTML(bSaveHTML);
     pdf2html.setSaveCSV(bSaveCSV);
@@ -93,7 +93,8 @@ public class P11ParseGASHtml {
     printParsedValues();
     ISql sql = model.getFatturaInserter(parser.getTipoFattura());
     sql.init(parser, model);
-    ((GASxSqlServ) sql).setShowStatement(true);
+    // model.getDbconn().setShowStatement(bDebug);
+    // ((GASxSqlServ) sql).setShowStatement(true);
     //    sql.setParsePdf(parser);
     //    sql.setModel(model);
     if (sql.fatturaExist()) {

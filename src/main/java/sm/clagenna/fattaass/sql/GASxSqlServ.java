@@ -44,12 +44,13 @@ public class GASxSqlServ extends BaseSqlServ implements ISql {
     Integer iidIntesta = getModel().getRecIntesta().getIdIntestaInt();
     RecGasFattura fattGAS = parseGAS.getFattura();
     try {
-      if (null == m_stmt_ins_Fattura) {
+      if (null == m_stmt_ins_Fattura)
         m_stmt_ins_Fattura = dbconn.getConn().prepareStatement(Consts.QRY_ins_GASFattura);
-      }
     } catch (SQLException e) {
       s_log.error("Error prep stmt: %s", Consts.QRY_ins_GASFattura, e);
     }
+    if (dbconn.isShowStatement())
+      dbconn.setShowSQL(Consts.QRY_ins_GASFattura, m_stmt_ins_Fattura);
     int k = 1;
     dbconn.setStmtInt(m_stmt_ins_Fattura, k++, iidIntesta);
     dbconn.setStmtInt(m_stmt_ins_Fattura, k++, fattGAS.getAnnoComp());
@@ -68,8 +69,8 @@ public class GASxSqlServ extends BaseSqlServ implements ISql {
     dbconn.setStmtImporto(m_stmt_ins_Fattura, k++, fattGAS.getImpostaQuiet());
     dbconn.setStmtImporto(m_stmt_ins_Fattura, k++, fattGAS.getTotPagare());
     dbconn.setStmtString(m_stmt_ins_Fattura, k++, fileName(fattGAS.getNomeFile()));
-    if (isShowStatement())
-      s_log.info(toString(m_stmt_ins_Fattura));
+    if (dbconn.isShowStatement())
+      s_log.info(dbconn.toString(m_stmt_ins_Fattura));
     m_stmt_ins_Fattura.executeUpdate();
     int idFatt = dbconn.getLastIdentity();
     fattGAS.setIdGASFattura(idFatt);
@@ -88,12 +89,13 @@ public class GASxSqlServ extends BaseSqlServ implements ISql {
       return;
     }
     try {
-      if (null == m_stmt_ins_Lettura) {
+      if (null == m_stmt_ins_Lettura)
         m_stmt_ins_Lettura = dbconn.getConn().prepareStatement(Consts.QRY_ins_GASLettura);
-      }
     } catch (SQLException e) {
       s_log.error("Error prep stmt: %s", Consts.QRY_ins_GASLettura, e);
     }
+    if (dbconn.isShowStatement())
+      dbconn.setShowSQL(Consts.QRY_ins_GASLettura, m_stmt_ins_Lettura);
     Integer iid = fattGAS.getIdGASFattura();
     int qtaLett = 0;
     for (RecGasLettura lett : li) {
@@ -106,8 +108,8 @@ public class GASxSqlServ extends BaseSqlServ implements ISql {
       dbconn.setStmtString(m_stmt_ins_Lettura, k++, lett.getMatricola());
       dbconn.setStmtDouble(m_stmt_ins_Lettura, k++, lett.getCoeffC());
       dbconn.setStmtDouble(m_stmt_ins_Lettura, k++, lett.getConsumo());
-      if (isShowStatement())
-        s_log.info(toString(m_stmt_ins_Lettura));
+      if (dbconn.isShowStatement())
+        s_log.info(dbconn.toString(m_stmt_ins_Lettura));
       m_stmt_ins_Lettura.executeUpdate();
     }
     s_log.info("Inserito {} righe di lettura GAS per Fattura del {}", qtaLett, ParseData.formatDate(fattGAS.getDataEmiss()));
@@ -125,12 +127,13 @@ public class GASxSqlServ extends BaseSqlServ implements ISql {
       return;
     }
     try {
-      if (null == m_stmt_ins_Consumo) {
+      if (null == m_stmt_ins_Consumo) 
         m_stmt_ins_Consumo = dbconn.getConn().prepareStatement(Consts.QRY_ins_GASConsumo);
-      }
     } catch (SQLException e) {
       s_log.error("Error prep stmt: %s", Consts.QRY_ins_GASConsumo, e);
     }
+    if (dbconn.isShowStatement())
+      dbconn.setShowSQL(Consts.QRY_ins_GASConsumo, m_stmt_ins_Consumo);
     Integer iid = fattGAS.getIdGASFattura();
     int qtaCons = 0;
     for (RecGasConsumo cons : li) {
@@ -144,8 +147,8 @@ public class GASxSqlServ extends BaseSqlServ implements ISql {
       dbconn.setStmtDouble(m_stmt_ins_Consumo, k++, cons.getPrezzoUnit());
       dbconn.setStmtDouble(m_stmt_ins_Consumo, k++, cons.getQuantita());
       dbconn.setStmtImporto(m_stmt_ins_Consumo, k++, cons.getImporto());
-      if (isShowStatement())
-        s_log.info(toString(m_stmt_ins_Consumo));
+      if (dbconn.isShowStatement())
+        s_log.info(dbconn.toString(m_stmt_ins_Consumo));
       m_stmt_ins_Consumo.executeUpdate();
     }
     s_log.info("Inserito {} righe di consumo GAS per Fattura del {}", qtaCons, ParseData.formatDate(fattGAS.getDataEmiss()));

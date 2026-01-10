@@ -64,8 +64,8 @@ public class EExSqlServ extends BaseSqlServ implements ISql {
     dbconn.setStmtImporto(m_stmt_ins_Fattura, k++, fattEE.getImpostaQuiet());
     dbconn.setStmtImporto(m_stmt_ins_Fattura, k++, fattEE.getTotPagare());
     dbconn.setStmtString(m_stmt_ins_Fattura, k++, fileName(fattEE.getNomeFile()));
-    if (isShowStatement())
-      s_log.info(toString(m_stmt_ins_Fattura));
+    if (dbconn.isShowStatement())
+      s_log.info(dbconn.toString(m_stmt_ins_Fattura));
     m_stmt_ins_Fattura.executeUpdate();
     int idFatt = dbconn.getLastIdentity();
     fattEE.setIdEEFattura(idFatt);
@@ -106,8 +106,8 @@ public class EExSqlServ extends BaseSqlServ implements ISql {
       dbconn.setStmtDatetime(m_stmt_ins_Lettura, k++, lett.getDtLettAttuale());
       dbconn.setStmtInt(m_stmt_ins_Lettura, k++, lett.getLettAttuale());
       dbconn.setStmtDouble(m_stmt_ins_Lettura, k++, lett.getConsumo());
-      if (isShowStatement())
-        s_log.info(toString(m_stmt_ins_Lettura));
+      if (dbconn.isShowStatement())
+        s_log.info(dbconn.toString(m_stmt_ins_Lettura));
       m_stmt_ins_Lettura.executeUpdate();
     }
     s_log.info("Inserito {} righe di lettura EE per Fattura del {}", qtaLett, ParseData.formatDate(fattEE.getDataEmiss()));
@@ -149,8 +149,8 @@ public class EExSqlServ extends BaseSqlServ implements ISql {
       dbconn.setStmtDouble(m_stmt_ins_Consumo, k++, cons.getPrezzoUnit());
       dbconn.setStmtDouble(m_stmt_ins_Consumo, k++, cons.getQuantita());
       dbconn.setStmtImporto(m_stmt_ins_Consumo, k++, cons.getImporto());
-      if (isShowStatement())
-        s_log.info(toString(m_stmt_ins_Consumo));
+      if (dbconn.isShowStatement())
+        s_log.info(dbconn.toString(m_stmt_ins_Consumo));
       m_stmt_ins_Consumo.executeUpdate();
     }
     s_log.info("Inserito {} righe di consumo EE per Fattura del {}", qtaCons, ParseData.formatDate(fattEE.getDataEmiss()));

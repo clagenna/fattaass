@@ -69,8 +69,8 @@ public class H2OxSqlServ extends BaseSqlServ implements ISql {
     dbconn.setStmtImporto(m_stmt_ins_Fattura, k++, fattH2O.getRestituzAccPrec());
     dbconn.setStmtImporto(m_stmt_ins_Fattura, k++, fattH2O.getTotPagare());
     dbconn.setStmtString(m_stmt_ins_Fattura, k++, fileName(fattH2O.getNomeFile()));
-    if (isShowStatement())
-      s_log.info(toString(m_stmt_ins_Fattura));
+    if (dbconn.isShowStatement())
+      s_log.info(dbconn.toString(m_stmt_ins_Fattura));
     m_stmt_ins_Fattura.executeUpdate();
     int idFatt = dbconn.getLastIdentity();
     fattH2O.setIdH2OFattura(idFatt);
@@ -106,8 +106,8 @@ public class H2OxSqlServ extends BaseSqlServ implements ISql {
       dbconn.setStmtString(m_stmt_ins_Lettura, k++, lett.getMatricola());
       dbconn.setStmtDouble(m_stmt_ins_Lettura, k++, lett.getCoeffK());
       dbconn.setStmtDouble(m_stmt_ins_Lettura, k++, lett.getConsumo());
-      if (isShowStatement())
-        s_log.info(toString(m_stmt_ins_Lettura));
+      if (dbconn.isShowStatement())
+        s_log.info(dbconn.toString(m_stmt_ins_Lettura));
       m_stmt_ins_Lettura.executeUpdate();
     }
     s_log.info("Inserito {} righe di lettura H2O per Fattura del {}", qtaLett, ParseData.formatDate(fattH2O.getDataEmiss()));
@@ -144,8 +144,8 @@ public class H2OxSqlServ extends BaseSqlServ implements ISql {
       dbconn.setStmtDouble(m_stmt_ins_Consumo, k++, cons.getPrezzoUnit());
       dbconn.setStmtDouble(m_stmt_ins_Consumo, k++, cons.getQuantita());
       dbconn.setStmtImporto(m_stmt_ins_Consumo, k++, cons.getImporto());
-      if (isShowStatement())
-        s_log.info(toString(m_stmt_ins_Consumo));
+      if (dbconn.isShowStatement())
+        s_log.info(dbconn.toString(m_stmt_ins_Consumo));
       m_stmt_ins_Consumo.executeUpdate();
     }
     s_log.info("Inserito {} righe di consumo H2O per Fattura del {}", qtaCons, ParseData.formatDate(fattH2O.getDataEmiss()));

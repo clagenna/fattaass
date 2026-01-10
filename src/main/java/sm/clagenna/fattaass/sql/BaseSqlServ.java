@@ -27,15 +27,15 @@ import sm.clagenna.stdcla.sql.DBConn;
 public abstract class BaseSqlServ implements ISql, Closeable {
 
   @Getter @Setter
-  private FattAassModel     model;
+  private FattAassModel  model;
   @Getter @Setter
-  private IParserFatture    parsePdf;
+  private IParserFatture parsePdf;
   @Getter @Setter
-  private IRecFattura       fattura;
+  private IRecFattura    fattura;
   @Getter @Setter
-  private DBConn            dbconn;
-  @Getter @Setter
-  private boolean           showStatement;
+  private DBConn         dbconn;
+  //  @Getter @Setter
+  //  private boolean           showStatement;
   @Getter
   private List<Integer>     listIdFattura;
   Optional<Integer>         idFattura;
@@ -64,6 +64,7 @@ public abstract class BaseSqlServ implements ISql, Closeable {
       dbconn = model.newDBConn();
     } else
       dbconn = model.getDbconn();
+    dbconn.setShowStatement(model.isDebug());
     setParsePdf(p_fact);
     fattura = p_fact.getFattura();
     setTipoFattura(fattura.getTipoFattura());
@@ -72,6 +73,8 @@ public abstract class BaseSqlServ implements ISql, Closeable {
     String szQry = String.format(Consts.QRY_find_Fattura, szT, szT, szT);
     try {
       m_stmt_cerca_fattura = conn.prepareStatement(szQry);
+      if (dbconn.isShowStatement())
+        dbconn.setShowSQL(szQry, m_stmt_cerca_fattura);
     } catch (SQLException e) {
       getLog().error("{} Error prep stmt: %s", threadName, szQry, e);
     }
@@ -115,8 +118,8 @@ public abstract class BaseSqlServ implements ISql, Closeable {
         fattura.setIdFattura(iiId);
         addIdFattura(iiId);
       }
-      if (isShowStatement())
-        getLog().debug(toString(m_stmt_cerca_fattura));
+      if (dbconn.isShowStatement())
+        getLog().debug(dbconn.toString(m_stmt_cerca_fattura));
     }
     return existFattDaCancellare();
   }
@@ -156,8 +159,10 @@ public abstract class BaseSqlServ implements ISql, Closeable {
         int k = 1;
         try (PreparedStatement stmt = dbconn.getConn().prepareStatement(qry)) {
           dbconn.setStmtInt(stmt, k++, iidFatt);
-          if (isShowStatement())
-            getLog().info("{},{}", threadName, toString(stmt));
+          if (dbconn.isShowStatement()) {
+            dbconn.setShowSQL(qry, stmt);
+            getLog().info("{},{}", threadName, dbconn.toString(stmt));
+          }
           int qtaDel = stmt.executeUpdate();
           getLog().debug("{}, Cancellato {} righe da {}", threadName, qtaDel, nomeTab);
         } catch (SQLException e) {
@@ -222,25 +227,28 @@ public abstract class BaseSqlServ implements ISql, Closeable {
    * @param stmt
    * @return
    */
-  public String toString(PreparedStatement stmt) {
-    String qry = stmt.toString();
-    String[] arr = qry.split("parameters=");
-    String[] pars = null;
-    qry = arr[0];
-    if (arr.length > 1) {
-      pars = arr[1].replace("[", "").replace("]", "").split(",");
-    }
-    if (null != pars) {
-      for (String par : pars) {
-        int n = qry.indexOf("?");
-        if (n < 0)
-          break;
-        String sz1 = qry.substring(0, n);
-        String sz2 = qry.substring(n + 2);
-        qry = String.format("%s%s %s", sz1, par, sz2);
-      }
-    }
-    return qry;
-  }
+  //  public String toStringOLD(PreparedStatement stmt) {
+  //    String qry = stmt.toString();
+  //    String[] arr = qry.split("parameters=");
+  //    String[] pars = null;
+  //    qry = arr[0];
+  //    if (arr.length > 1) {
+  //      pars = arr[1].replace("[", "").replace("]", "").split(",");
+  //    }
+  //    if (null != pars) {
+  //      for (String par : pars) {
+  //        int n = qry.indexOf("?");
+  //        if (n < 0)
+  //          break;
+  //        String sz1 = qry.substring(0, n);
+  //        String sz2 = qry.substring(n + 2);
+  //        qry = String.format("%s%s %s", sz1, par, sz2);
+  //      }
+  //    }
+  //    return qry;
+  //  }
 
+  //  public String toString(PreparedStatement stmt) {
+  //    return dbconn.toString(stmt);
+  //  }
 }

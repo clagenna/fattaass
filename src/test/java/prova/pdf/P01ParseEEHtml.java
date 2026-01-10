@@ -14,7 +14,6 @@ import org.junit.Test;
 import sm.clagenna.fattaass.data.Consts;
 import sm.clagenna.fattaass.data.FattAassModel;
 import sm.clagenna.fattaass.data.ParserEEFattura;
-import sm.clagenna.fattaass.sql.EExSqlServ;
 import sm.clagenna.fattaass.sql.ISql;
 import sm.clagenna.stdcla.pdf.FromPdf2Html;
 import sm.clagenna.stdcla.utils.AppProperties;
@@ -85,8 +84,9 @@ public class P01ParseEEHtml {
 
     printParsedValues();
     ISql sql = model.getFatturaInserter(parser.getTipoFattura());
+    model.setDebug(true);
     sql.init(parser, model);
-    ((EExSqlServ) sql).setShowStatement(true);
+    // ((EExSqlServ) sql).setShowStatement(true);
     //    sql.setParsePdf(parser);
     //    sql.setModel(model);
     if (sql.fatturaExist()) {

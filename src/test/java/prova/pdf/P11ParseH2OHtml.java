@@ -14,7 +14,6 @@ import org.junit.Test;
 import sm.clagenna.fattaass.data.Consts;
 import sm.clagenna.fattaass.data.FattAassModel;
 import sm.clagenna.fattaass.data.ParserH2OFattura;
-import sm.clagenna.fattaass.sql.H2OxSqlServ;
 import sm.clagenna.fattaass.sql.ISql;
 import sm.clagenna.stdcla.pdf.FromPdf2Html;
 import sm.clagenna.stdcla.utils.AppProperties;
@@ -81,8 +80,9 @@ public class P11ParseH2OHtml {
 
     printParsedValues();
     ISql sql = model.getFatturaInserter(parser.getTipoFattura());
+    model.setDebug(true);
     sql.init(parser, model);
-    ((H2OxSqlServ) sql).setShowStatement(true);
+    // ((H2OxSqlServ) sql).setShowStatement(true);
     //    sql.setParsePdf(parser);
     //    sql.setModel(model);
     if (sql.fatturaExist()) {
